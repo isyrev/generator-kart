@@ -51,11 +51,14 @@
     var lines = [];
     for (var i = 0; i < ids.length; i++) {
       var v = UecnParser.clean(lastValues[ids[i]]);
-      lines.push(isEmpty(v) ? '-' : v);
+      // только реальные номера, без «-» и пустых
+      if (isEmpty(v)) continue;
+      lines.push(v);
     }
     var text = lines.join('\n');
     navigator.clipboard.writeText(text).then(function () {
-      btn.textContent = '✓ Скопировано';
+      var n = lines.length;
+      btn.textContent = '✓ ' + n + ' шт.';
       btn.classList.add('copied');
       setTimeout(function () {
         btn.textContent = 'Копировать всё (1–30)';
@@ -102,18 +105,37 @@
         html += '<div class="block-gap"></div>';
         continue;
       }
-      // labelIf: show label only when field is non-empty
+      // labelIf: строка только если поле непустое (ППО)
+      var labelIfActive = false;
       if (row.labelIf) {
         var check = UecnParser.clean(values[row.labelIf]);
-        if (isEmpty(check)) continue; // skip whole row including value when PPO empty
+        if (isEmpty(check)) continue;
+        labelIfActive = true;
       }
 
       var cols = row.cols || 1;
       var ids = row.ids || [];
       var cls = cols === 3 ? 'row3' : cols === 2 ? 'row2' : 'row1';
+
+      // Компакт + ППО: [номер] | «ППО»  — подпись во 2-й колонке
+      if (copyMode === 'all' && labelIfActive && row.label) {
+        html += '<div class="row2">';
+        var id0 = String(ids[0] || row.labelIf);
+        var f0 = fields[id0] || {};
+        var val0 = values[id0] != null ? values[id0] : '-';
+        html += cellStatic(val0);
+        html += '<span class="row-label col2">' + esc(row.label) + '</span>';
+        html += '</div>';
+        continue;
+      }
+
       html += '<div class="' + cls + '">';
 
-      if (row.label) {
+      // Полный режим: «Комплект №» / «ППО» слева от значения
+      if (row.label && copyMode === 'perField') {
+        html += '<span class="row-label">' + esc(row.label) + '</span>';
+      } else if (row.label && !labelIfActive) {
+        // компакт: «Комплект №» тоже показываем
         html += '<span class="row-label">' + esc(row.label) + '</span>';
       }
 
@@ -121,12 +143,8 @@
         var id = String(ids[j]);
         var f = fields[id] || {};
         var val = values[id] != null ? values[id] : '-';
-        // per-field copy only in full mode and only for copyable non-empty
         if (copyMode === 'perField' && f.copyable) {
           html += cellCopy(val);
-        } else if (copyMode === 'all' && f.copyable) {
-          // in compact mode show numbers without individual buttons
-          html += cellStatic(val);
         } else {
           html += cellStatic(val);
         }

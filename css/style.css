@@ -22,6 +22,11 @@ body { padding: 20px 36px 60px; }
   color: #9cdcfe;
   font-weight: bold;
 }
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
 .controls select {
   background: #2d2d2d;
   color: #d4d4d4;
@@ -89,7 +94,7 @@ body { padding: 20px 36px 60px; }
 
 .row3 {
   display: grid;
-  grid-template-columns: 300px 360px 120px;
+  grid-template-columns: 300px minmax(220px, 1fr) 120px;
   gap: 0 18px;
   align-items: center;
   min-height: 36px;
@@ -97,7 +102,7 @@ body { padding: 20px 36px 60px; }
 }
 .row2 {
   display: grid;
-  grid-template-columns: 300px 120px;
+  grid-template-columns: 300px minmax(220px, 1fr);
   gap: 0 18px;
   align-items: center;
   min-height: 36px;
@@ -124,9 +129,6 @@ body { padding: 20px 36px 60px; }
   padding: 5px 12px;
   border-radius: 5px;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 260px;
   font-size: 16px;
 }
 .val.empty { color: #555; background: transparent; padding: 5px 0; }
@@ -142,48 +144,27 @@ body { padding: 20px 36px 60px; }
 }
 .btn:hover { background: #1177bb; }
 .btn.copied { background: #4ec9b0; }
+
 .static {
   color: #6a9955;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 340px;
   font-size: 16px;
+  white-space: normal;
+  word-break: break-word;
+  max-width: 520px;
+  line-height: 1.35;
 }
 .static.empty { color: #555; }
-
-.foot {
-  margin-top: 40px;
-  font-size: 12px;
-  color: #555;
-}
-.foot code {
-  color: #6a9955;
-  background: #2d2d2d;
-  padding: 1px 6px;
-  border-radius: 3px;
-}
-
-@media (max-width: 800px) {
-  .row3 { grid-template-columns: 1fr; }
-  .row2 { grid-template-columns: 1fr; }
-  body { padding: 16px; }
-}
 
 .row-label {
   color: #9cdcfe;
   font-size: 15px;
-  margin-right: 8px;
   white-space: nowrap;
   align-self: center;
 }
-.row1.has-label,
-.row2.has-label,
-.row3.has-label {
-  /* label is first child in grid */
+.row-label.col2 {
+  color: #9cdcfe;
+  font-size: 15px;
 }
-.row1 { grid-template-columns: auto 300px; }
-.row1:not(:has(.row-label)) { grid-template-columns: 300px; }
 
 .copy-all-wrap {
   margin-top: 28px;
@@ -206,4 +187,21 @@ body { padding: 20px 36px 60px; }
 .copy-all-hint {
   font-size: 13px;
   color: #666;
+}
+
+.foot {
+  margin-top: 40px;
+  font-size: 12px;
+  color: #555;
+}
+.foot code {
+  color: #6a9955;
+  background: #2d2d2d;
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+
+@media (max-width: 800px) {
+  .row3, .row2 { grid-template-columns: 1fr; }
+  body { padding: 16px; }
 }
