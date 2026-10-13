@@ -1,123 +1,39 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Парсер УЭЦН</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <style>
-        body { font-family: sans-serif; background: #f4f4f9; margin: 0; padding: 2rem; color: #333; }
-        .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h1 { text-align: center; margin-top: 0; }
-        #drop-zone { border: 2px dashed #007bff; border-radius: 8px; padding: 2rem; text-align: center; cursor: pointer; transition: background 0.2s; }
-        #drop-zone.hover { background: #e0f0ff; }
-        #file-input { display: none; }
-        #results { margin-top: 2rem; }
-        .result-card { background: #f8f9fa; border-left: 4px solid #007bff; padding: 1rem; margin-bottom: 1rem; border-radius: 4px; }
-        .tags { font-weight: bold; color: #007bff; margin-bottom: 0.5rem; font-size: 1.1rem; }
-        .content { color: #495057; word-break: break-word; line-height: 1.5; background: #fff; padding: 0.5rem; border: 1px solid #e9ecef; border-radius: 4px; }
-        .error { color: red; font-weight: bold; text-align: center; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Извлечение полей УЭЦН</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<div class="container">
-    <h1>Извлечение данных по тегам [1]-[107]</h1>
-    <div id="drop-zone">
-        <p><strong>Перетащите сюда файл .docx</strong></p>
-        <p>или нажмите, чтобы выбрать</p>
-        <input type="file" id="file-input" accept=".docx">
-    </div>
-    <div id="results"></div>
+<div id="dragOverlay"><span>Отпустите файл .docx</span></div>
+
+<header class="top">
+  <div class="brand">УЭЦН · извлечение полей</div>
+  <div class="controls">
+    <label class="sel-label">Шаблон
+      <select id="templateSelect"></select>
+    </label>
+  </div>
+</header>
+
+<div id="dropZone">
+  Перетащите сюда файл .docx
+  <div class="hint">можно бросить в любое место страницы — или нажмите, чтобы выбрать</div>
+  <div id="status"></div>
 </div>
+<input type="file" id="fileInput" accept=".docx" style="display:none">
 
-<script>
-    const dropZone = document.getElementById('drop-zone');
-    const fileInput = document.getElementById('file-input');
-    const resultsDiv = document.getElementById('results');
+<div id="output"></div>
 
-    dropZone.addEventListener('click', () => fileInput.click());
-    fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+<footer class="foot">
+  Шаблоны в <code>templates/</code> · добавить новый: JSON + запись в <code>templates/index.json</code>
+</footer>
 
-    ['dragenter', 'dragover'].forEach(evt => {
-        document.addEventListener(evt, (e) => { e.preventDefault(); dropZone.classList.add('hover'); });
-    });
-    ['dragleave', 'drop'].forEach(evt => {
-        document.addEventListener(evt, (e) => { e.preventDefault(); dropZone.classList.remove('hover'); });
-    });
-    document.addEventListener('drop', (e) => {
-        if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
-    });
-
-    async function handleFile(file) {
-        if (!file || !file.name.endsWith('.docx')) {
-            showError('Пожалуйста, выберите файл формата .docx');
-            return;
-        }
-
-        resultsDiv.innerHTML = '<p style="text-align:center;">Обработка файла...</p>';
-
-        try {
-            const arrayBuffer = await file.arrayBuffer();
-            const zip = await JSZip.loadAsync(arrayBuffer);
-            const xml = await zip.file("word/document.xml").async("string");
-            
-            // 1. Находим все строки таблиц в XML
-            const trMatches = xml.match(/<w:tr\b[^>]*>([\s\S]*?)<\/w:tr>/g) || [];
-            const extractedData = [];
-
-            for (const tr of trMatches) {
-                // 2. Извлекаем весь текст из ячеек текущей строки (теги <w:t>)
-                const tMatches = tr.match(/<w:t[^>]*>([^<]*)<\/w:t>/g) || [];
-                const rowTexts = tMatches.map(t => t.replace(/<[^>]+>/g, '').trim()).filter(t => t.length > 0);
-                const fullRowText = rowTexts.join(' ');
-
-                // 3. Ищем теги вида [число]
-                const tagsFound = fullRowText.match(/\[\d+\]/g);
-                
-                // 4. Если теги найдены, сохраняем строку
-                if (tagsFound) {
-                    extractedData.push({
-                        tags: [...new Set(tagsFound)], // Уникальные теги строки
-                        content: fullRowText
-                    });
-                }
-            }
-
-            renderResults(extractedData);
-        } catch (err) {
-            showError('Ошибка при чтении файла: ' + err.message);
-        }
-    }
-
-    function renderResults(data) {
-        resultsDiv.innerHTML = '';
-        if (data.length === 0) {
-            resultsDiv.innerHTML = '<p class="error">Строки с тегами [число] не найдены.</p>';
-            return;
-        }
-
-        data.forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'result-card';
-            
-            const tagsEl = document.createElement('div');
-            tagsEl.className = 'tags';
-            tagsEl.textContent = `Найдены теги: ${item.tags.join(', ')}`;
-            
-            const contentEl = document.createElement('div');
-            contentEl.className = 'content';
-            contentEl.textContent = item.content;
-            
-            card.appendChild(tagsEl);
-            card.appendChild(contentEl);
-            resultsDiv.appendChild(card);
-        });
-    }
-
-    function showError(msg) {
-        resultsDiv.innerHTML = `<p class="error">${msg}</p>`;
-    }
-</script>
+<script src="js/parser.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
