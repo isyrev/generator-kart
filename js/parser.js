@@ -308,19 +308,40 @@
       };
     }
 
-    /* ── Фильтр ── */
-    var filter = { num1: '-', num2: '-' };
+    /* ── Фильтр / Сепаратор ── */
+    var filter = { num1: '-', num2: '-', type1: '-', type2: '-' };
     var filtRow = findRow(/Сепаратор|Разобщитель/i);
     if (filtRow >= 0) {
       var s = S(filtRow);
+      // type cell often contains [76][77] or two types
+      for (var i = 1; i < s.length; i++) {
+        var t = s[i];
+        if (!t || t === '-') continue;
+        if (/Сепаратор|Разобщитель/.test(t)) continue;
+        // types: text with letters, not pure numbers
+        if ((/[A-Za-zА-Яа-яЁё]/.test(t) || /\[\d+\]\[\d+\]/.test(t)) && !/мм|Кол|Ø|Контейнер/i.test(t)) {
+          var tp = t.replace(/\[76\]/g, '').replace(/\[77\]/g, '').trim();
+          var tparts = tp.split(/[\n\r]+/).map(function (x) { return x.trim(); }).filter(Boolean);
+          if (tparts.length < 2) {
+            var mm = tp.match(/(\S+)\s+(\S+)/);
+            if (mm) tparts = [mm[1], mm[2]];
+          }
+          if (tparts[0]) filter.type1 = clean(tparts[0].replace(/^\[\d+\]$/, '')) || '-';
+          if (tparts[1]) filter.type2 = clean(tparts[1].replace(/^\[\d+\]$/, '')) || '-';
+          if (/^\[\d+\]$/.test(filter.type1)) filter.type1 = '-';
+          if (/^\[\d+\]$/.test(filter.type2)) filter.type2 = '-';
+          break;
+        }
+      }
       var numCell = null;
       for (var i = 1; i < s.length; i++) {
         var t = s[i];
         if (!t || t === '-') continue;
         if (/мм/i.test(t)) continue;
         if (/Сепаратор|Разобщитель|Контейнер|Кол\.|Ø/i.test(t)) continue;
-        if (/[A-Za-zА-Яа-яЁё]{2,}/.test(t) && /\d/.test(t) && t.indexOf('-') >= 0) continue;
+        if (/[A-Za-zА-Яа-яЁё]{2,}/.test(t) && /\d/.test(t) && t.indexOf('-') >= 0 && !/\[\d+\]/.test(t)) continue;
         if (/^\d+[.,‚]\d+$/.test(t)) continue;
+        if (/\[\d+\]\[\d+\]/.test(t) && !/\[19\]|\[20\]/.test(t)) continue; // type placeholders
         numCell = t; break;
       }
       if (numCell && numCell !== '-' && numCell !== '—') {
@@ -341,47 +362,81 @@
       }
     }
 
-    /* ── Протектолайзеры ── */
-    var protMap = {
-      'Г/З': {}, '1-я': {}, '2-я': {}, '3-я': {},
-      'МЛГ': {}, '5-я': {}, '6-я': {}, '7-я': {}
-    };
-    function isProtLabel(t) {
-      return t === 'Г/З' || t === 'МЛГ' || /^\d+-я$/.test(t || '');
-    }
-    function isProtNum(t) {
-      if (!t || t === '-' || t === '—') return false;
-      if (isProtLabel(t)) return false;
-      if (/^ПУ/i.test(t)) return false;
-      if (/^(Р|Н|К\/Р|К)$/i.test(t)) return false;
-      if (/^\[\d+\]$/.test(t)) return false;
-      return /\d{5,}/.test(t) || /[A-Za-zА-Яа-яЁё]\d{4,}/.test(t);
-    }
-    var protStart = -1;
-    for (var i = 0; i < T.length; i++) {
-      if (/Протектолайзер/i.test(T[i].join(' '))) { protStart = i; break; }
-    }
-    if (protStart >= 0) {
-      for (var i = protStart + 1; i < Math.min(protStart + 8, T.length); i++) {
-        var raw = (rawRows && rawRows[i]) ? rawRows[i].slice() : (T[i] || []).slice();
-        while (raw.length && raw[0] === '') raw.shift();
-        for (var g = 0; g + 3 < raw.length; g += 4) {
-          var lab = (raw[g] || '').trim();
-          var marka = (raw[g + 1] || '').trim();
-          var num = (raw[g + 2] || '').trim();
-          var priz = (raw[g + 3] || '').trim();
-          if (!isProtLabel(lab)) continue;
-          if (!protMap[lab]) continue; // skip 4-я, 8-я…
-          if (!isProtNum(num) && isProtNum(marka)) num = marka;
-          if (!isProtNum(num)) num = '-';
-          else num = clean(num);
-          if (!/^(Р|Н|К\/Р|К)$/i.test(priz)) priz = '-';
-          if (!protMap[lab].num || protMap[lab].num === '-') {
-            protMap[lab] = { num: num, priz: clean(priz) };
-          }
-        }
+    /* ── КС ── */
+    var ks = { type: '-', num: '-', priz: '-' };
+    var ksRow = findRow(/\bКС\b/);
+    if (ksRow < 0) {
+      for (var i = 0; i < T.length; i++) {
+        var s = S(i);
+        if (s[0] === 'КС') { ksRow = i; break; }
       }
     }
+    if (ksRow >= 0) {
+      var s = S(ksRow);
+      // structure like ОК: label, type, num, priz
+      function phk(x) { return clean(String(x || '').replace(/^\[\d+\]$/, '')) || '-'; }
+      ks.type = phk(s[1]);
+      ks.num = phk(s[2]);
+      ks.priz = phk(s[3]);
+    }
+
+    /* ── Протектолайзеры (позиции: 4 ряда × 2 группы = 8 слотов) ──
+       Слот 0..3 = левая колонка сверху вниз
+       Слот 4..7 = средняя колонка сверху вниз
+       part: num / marka / priz  */
+  var protSlots = [];
+  for (var pi = 0; pi < 8; pi++) protSlots.push({ num: '-', marka: '-', priz: '-' });
+  function isProtLabel(t) {
+    return t === 'Г/З' || t === 'МЛГ' || t === 'МС' || t === 'ГЗ' || /^\d+-я$/.test(t || '');
+  }
+  function isProtNum(t) {
+    if (!t || t === '-' || t === '—') return false;
+    if (isProtLabel(t)) return false;
+    if (/^ПУ/i.test(t) || /^ПК/i.test(t)) return false;
+    if (/^(Р|Н|К\/Р|К)$/i.test(t)) return false;
+    if (/^\[\d+\]$/.test(t)) return false;
+    return /\d{5,}/.test(t) || /[A-Za-zА-Яа-яЁё]\d{4,}/.test(t);
+  }
+  var protStart = -1;
+  for (var i = 0; i < T.length; i++) {
+    if (/Протектолайзер/i.test(T[i].join(' '))) { protStart = i; break; }
+  }
+  if (protStart >= 0) {
+    var left = [], mid = [];
+    for (var i = protStart + 1; i < Math.min(protStart + 8, T.length); i++) {
+      var raw = (rawRows && rawRows[i]) ? rawRows[i].slice() : (T[i] || []).slice();
+      while (raw.length && raw[0] === '') raw.shift();
+      var groups = [];
+      for (var g = 0; g + 3 < raw.length; g += 4) {
+        var lab = (raw[g] || '').trim();
+        var marka = (raw[g + 1] || '').trim();
+        var num = (raw[g + 2] || '').trim();
+        var priz = (raw[g + 3] || '').trim();
+        if (!isProtLabel(lab)) continue;
+        // skip 4-я, 7-я, 8–11-я в 3-й колонке — они не входят в 8 слотов шаблона
+        // но 3-я, 5-я, 6-я, МЛГ в средней колонке нужны
+        if (!isProtNum(num) && isProtNum(marka)) { /* swap no */ }
+        if (!isProtNum(num)) num = '-';
+        else num = clean(num);
+        if (/^ПУ/i.test(marka) || /^ПК/i.test(marka)) marka = clean(marka);
+        else if (/^\[\d+\]$/.test(marka) || !marka || marka === '-') marka = '-';
+        else marka = clean(marka);
+        if (!/^(Р|Н|К\/Р|К)$/i.test(priz)) priz = '-';
+        groups.push({ lab: lab, marka: marka, num: num, priz: clean(priz) });
+      }
+      if (groups[0]) left.push(groups[0]);
+      if (groups[1]) mid.push(groups[1]);
+      // groups[2] = 3-я колонка (7/8/9/10/11-я) — не в 8 слотах
+    }
+    var ordered = left.concat(mid);
+    for (var pi = 0; pi < 8 && pi < ordered.length; pi++) {
+      protSlots[pi] = {
+        num: ordered[pi].num || '-',
+        marka: ordered[pi].marka || '-',
+        priz: ordered[pi].priz || '-'
+      };
+    }
+  }
 
     /* ── map sources → field ids ── */
     var sources = {
@@ -395,8 +450,9 @@
       gz: gz,
       ms: ms,
       ok: okSlots,
+      ks: ks,
       filter: filter,
-      prot: protMap
+      prot: protSlots
     };
 
     for (var fid in template.fields) {
@@ -420,11 +476,11 @@
         continue;
       }
       if (src === 'prot') {
-        var pk = protMap[f.key] || {};
+        var pk = protSlots[f.slot] || {};
         v[fid] = clean(pk[f.part] || '-');
         continue;
       }
-      if (src === 'mlg' || src === 'sensor' || src === 'ppo' || src === 'gs' || src === 'gz' || src === 'ms' || src === 'filter') {
+      if (src === 'mlg' || src === 'sensor' || src === 'ppo' || src === 'gs' || src === 'gz' || src === 'ms' || src === 'ks' || src === 'filter') {
         var obj = sources[src] || {};
         v[fid] = clean(obj[f.part] || '-');
         continue;

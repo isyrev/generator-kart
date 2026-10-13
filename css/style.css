@@ -104,9 +104,10 @@ body { padding: 20px 36px 60px; }
   margin-bottom: 4px;
 }
 .row1 {
-  display: grid;
-  grid-template-columns: 300px;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  gap: 10px 14px;
   min-height: 36px;
   margin-bottom: 4px;
 }
@@ -167,4 +168,42 @@ body { padding: 20px 36px 60px; }
   .row3 { grid-template-columns: 1fr; }
   .row2 { grid-template-columns: 1fr; }
   body { padding: 16px; }
+}
+
+.row-label {
+  color: #9cdcfe;
+  font-size: 15px;
+  margin-right: 8px;
+  white-space: nowrap;
+  align-self: center;
+}
+.row1.has-label,
+.row2.has-label,
+.row3.has-label {
+  /* label is first child in grid */
+}
+.row1 { grid-template-columns: auto 300px; }
+.row1:not(:has(.row-label)) { grid-template-columns: 300px; }
+
+.copy-all-wrap {
+  margin-top: 28px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.btn-all {
+  background: #0e639c;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 22px;
+  font-size: 16px;
+  cursor: pointer;
+}
+.btn-all:hover { background: #1177bb; }
+.btn-all.copied { background: #4ec9b0; }
+.copy-all-hint {
+  font-size: 13px;
+  color: #666;
 }
