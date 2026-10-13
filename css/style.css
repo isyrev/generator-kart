@@ -205,3 +205,12 @@ body { padding: 20px 36px 60px; }
   .row3, .row2 { grid-template-columns: 1fr; }
   body { padding: 16px; }
 }
+
+/* строка [47]/[48] между ЭД 1Я и 2Я */
+.ed-mid .spacer {
+  display: block;
+  min-height: 1px;
+}
+.ed-mid {
+  margin: 2px 0;
+}

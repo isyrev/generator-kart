@@ -4,178 +4,1126 @@
   "version": "10",
   "description": "Поля 1–30 + 73 (номера), 31–85 (марки/признаки). Два режима: полный и компактный.",
   "komplektPattern": "Комплект\\s*№\\s*([^\\s\\u2000\\[]+)",
-  "tableDetect": ["1Я", "Ян.с", "ЭЦН", "Марка"],
+  "tableDetect": [
+    "1Я",
+    "Ян.с",
+    "ЭЦН",
+    "Марка"
+  ],
   "fields": {
-    "29": { "label": "Комплект №", "copyable": true, "source": "komplekt" },
-    "1":  { "label": "ЭЦН 1Я №", "copyable": true, "source": "ecn", "slot": 0, "part": "num" },
-    "2":  { "label": "ЭЦН 2Я №", "copyable": true, "source": "ecn", "slot": 1, "part": "num" },
-    "3":  { "label": "ЭЦН 3Я №", "copyable": true, "source": "ecn", "slot": 2, "part": "num" },
-    "4":  { "label": "ЭЦН 4Я №", "copyable": true, "source": "ecn", "slot": 3, "part": "num" },
-    "5":  { "label": "ЭЦН 5Я №", "copyable": true, "source": "ecn", "slot": 4, "part": "num" },
-    "6":  { "label": "ЭЦН 6Я №", "copyable": true, "source": "ecn", "slot": 5, "part": "num" },
-    "7":  { "label": "ЭЦН 7Я №", "copyable": true, "source": "ecn", "slot": 6, "part": "num" },
-    "31": { "label": "ЭЦН 1Я марка", "copyable": false, "source": "ecn", "slot": 0, "part": "marka" },
-    "32": { "label": "ЭЦН 2Я марка", "copyable": false, "source": "ecn", "slot": 1, "part": "marka" },
-    "33": { "label": "ЭЦН 3Я марка", "copyable": false, "source": "ecn", "slot": 2, "part": "marka" },
-    "34": { "label": "ЭЦН 4Я марка", "copyable": false, "source": "ecn", "slot": 3, "part": "marka" },
-    "35": { "label": "ЭЦН 5Я марка", "copyable": false, "source": "ecn", "slot": 4, "part": "marka" },
-    "36": { "label": "ЭЦН 6Я марка", "copyable": false, "source": "ecn", "slot": 5, "part": "marka" },
-    "37": { "label": "ЭЦН 7Я марка", "copyable": false, "source": "ecn", "slot": 6, "part": "marka" },
-    "38": { "label": "ЭЦН 1Я приз", "copyable": false, "source": "ecn", "slot": 0, "part": "priz" },
-    "39": { "label": "ЭЦН 2Я приз", "copyable": false, "source": "ecn", "slot": 1, "part": "priz" },
-    "40": { "label": "ЭЦН 3Я приз", "copyable": false, "source": "ecn", "slot": 2, "part": "priz" },
-    "41": { "label": "ЭЦН 4Я приз", "copyable": false, "source": "ecn", "slot": 3, "part": "priz" },
-    "42": { "label": "ЭЦН 5Я приз", "copyable": false, "source": "ecn", "slot": 4, "part": "priz" },
-    "43": { "label": "ЭЦН 6Я приз", "copyable": false, "source": "ecn", "slot": 5, "part": "priz" },
-    "44": { "label": "ЭЦН 7Я приз", "copyable": false, "source": "ecn", "slot": 6, "part": "priz" },
-    "8":  { "label": "МЛГ №", "copyable": true, "source": "mlg", "part": "num" },
-    "45": { "label": "МЛГ тип", "copyable": false, "source": "mlg", "part": "type" },
-    "46": { "label": "МЛГ приз", "copyable": false, "source": "mlg", "part": "priz" },
-    "30": { "label": "ЭД 1Я №", "copyable": true, "source": "ed", "slot": 0, "part": "num" },
-    "9":  { "label": "ЭД 2Я №", "copyable": true, "source": "ed", "slot": 1, "part": "num" },
-    "47": { "label": "ЭД тип", "copyable": false, "source": "ed", "part": "type" },
-    "48": { "label": "ЭД 2Я приз", "copyable": false, "source": "ed", "slot": 1, "part": "priz" },
-    "10": { "label": "Датчик №", "copyable": true, "source": "sensor", "part": "num" },
-    "49": { "label": "Датчик тип", "copyable": false, "source": "sensor", "part": "type" },
-    "50": { "label": "Датчик приз", "copyable": false, "source": "sensor", "part": "priz" },
-    "11": { "label": "ППО №", "copyable": true, "source": "ppo", "part": "num" },
-    "12": { "label": "Г/С №", "copyable": true, "source": "gs", "part": "num" },
-    "51": { "label": "Г/С тип", "copyable": false, "source": "gs", "part": "type" },
-    "52": { "label": "Г/С приз", "copyable": false, "source": "gs", "part": "priz" },
-    "13": { "label": "ГЗ №", "copyable": true, "source": "gz", "part": "num" },
-    "53": { "label": "ГЗ тип", "copyable": false, "source": "gz", "part": "type" },
-    "54": { "label": "ГЗ приз", "copyable": false, "source": "gz", "part": "priz" },
-    "14": { "label": "МС №", "copyable": true, "source": "ms", "part": "num" },
-    "55": { "label": "МС тип", "copyable": false, "source": "ms", "part": "type" },
-    "56": { "label": "МС приз", "copyable": false, "source": "ms", "part": "priz" },
-    "15": { "label": "ОК1 №", "copyable": true, "source": "ok", "slot": 0, "part": "num" },
-    "16": { "label": "ОК2 №", "copyable": true, "source": "ok", "slot": 1, "part": "num" },
-    "17": { "label": "ШУ1 №", "copyable": true, "source": "ok", "slot": 0, "part": "shuNum" },
-    "18": { "label": "ШУ2 №", "copyable": true, "source": "ok", "slot": 1, "part": "shuNum" },
-    "57": { "label": "ОК1 тип", "copyable": false, "source": "ok", "slot": 0, "part": "type" },
-    "58": { "label": "ОК2 тип", "copyable": false, "source": "ok", "slot": 1, "part": "type" },
-    "59": { "label": "ОК1 приз", "copyable": false, "source": "ok", "slot": 0, "part": "priz" },
-    "60": { "label": "ОК2 приз", "copyable": false, "source": "ok", "slot": 1, "part": "priz" },
-    "61": { "label": "ШУ1 тип", "copyable": false, "source": "ok", "slot": 0, "part": "shuType" },
-    "62": { "label": "ШУ2 тип", "copyable": false, "source": "ok", "slot": 1, "part": "shuType" },
-    "63": { "label": "ШУ1 приз", "copyable": false, "source": "ok", "slot": 0, "part": "shuPriz" },
-    "64": { "label": "ШУ2 приз", "copyable": false, "source": "ok", "slot": 1, "part": "shuPriz" },
-    "73": { "label": "КС №", "copyable": true, "source": "ks", "part": "num" },
-    "74": { "label": "КС тип", "copyable": false, "source": "ks", "part": "type" },
-    "75": { "label": "КС приз", "copyable": false, "source": "ks", "part": "priz" },
-    "19": { "label": "Сепаратор №", "copyable": true, "source": "filter", "part": "num1" },
-    "20": { "label": "Разобщитель №", "copyable": true, "source": "filter", "part": "num2" },
-    "76": { "label": "Сеп. тип", "copyable": false, "source": "filter", "part": "type1" },
-    "77": { "label": "Разоб. тип", "copyable": false, "source": "filter", "part": "type2" },
-    "21": { "label": "Пр1 №", "copyable": true, "source": "prot", "slot": 0, "part": "num" },
-    "22": { "label": "Пр2 №", "copyable": true, "source": "prot", "slot": 1, "part": "num" },
-    "23": { "label": "Пр3 №", "copyable": true, "source": "prot", "slot": 2, "part": "num" },
-    "24": { "label": "Пр4 №", "copyable": true, "source": "prot", "slot": 3, "part": "num" },
-    "25": { "label": "Пр5 №", "copyable": true, "source": "prot", "slot": 4, "part": "num" },
-    "26": { "label": "Пр6 №", "copyable": true, "source": "prot", "slot": 5, "part": "num" },
-    "27": { "label": "Пр7 №", "copyable": true, "source": "prot", "slot": 6, "part": "num" },
-    "28": { "label": "Пр8 №", "copyable": true, "source": "prot", "slot": 7, "part": "num" },
-    "78": { "label": "Пр1 марка", "copyable": false, "source": "prot", "slot": 0, "part": "marka" },
-    "79": { "label": "Пр2 марка", "copyable": false, "source": "prot", "slot": 1, "part": "marka" },
-    "80": { "label": "Пр3 марка", "copyable": false, "source": "prot", "slot": 2, "part": "marka" },
-    "81": { "label": "Пр4 марка", "copyable": false, "source": "prot", "slot": 3, "part": "marka" },
-    "82": { "label": "Пр5 марка", "copyable": false, "source": "prot", "slot": 4, "part": "marka" },
-    "83": { "label": "Пр6 марка", "copyable": false, "source": "prot", "slot": 5, "part": "marka" },
-    "84": { "label": "Пр7 марка", "copyable": false, "source": "prot", "slot": 6, "part": "marka" },
-    "85": { "label": "Пр8 марка", "copyable": false, "source": "prot", "slot": 7, "part": "marka" },
-    "65": { "label": "Пр1 приз", "copyable": false, "source": "prot", "slot": 0, "part": "priz" },
-    "66": { "label": "Пр2 приз", "copyable": false, "source": "prot", "slot": 1, "part": "priz" },
-    "67": { "label": "Пр3 приз", "copyable": false, "source": "prot", "slot": 2, "part": "priz" },
-    "68": { "label": "Пр4 приз", "copyable": false, "source": "prot", "slot": 3, "part": "priz" },
-    "69": { "label": "Пр5 приз", "copyable": false, "source": "prot", "slot": 4, "part": "priz" },
-    "70": { "label": "Пр6 приз", "copyable": false, "source": "prot", "slot": 5, "part": "priz" },
-    "71": { "label": "Пр7 приз", "copyable": false, "source": "prot", "slot": 6, "part": "priz" },
-    "72": { "label": "Пр8 приз", "copyable": false, "source": "prot", "slot": 7, "part": "priz" }
+    "29": {
+      "label": "Комплект №",
+      "copyable": true,
+      "source": "komplekt"
+    },
+    "1": {
+      "label": "ЭЦН 1Я №",
+      "copyable": true,
+      "source": "ecn",
+      "slot": 0,
+      "part": "num"
+    },
+    "2": {
+      "label": "ЭЦН 2Я №",
+      "copyable": true,
+      "source": "ecn",
+      "slot": 1,
+      "part": "num"
+    },
+    "3": {
+      "label": "ЭЦН 3Я №",
+      "copyable": true,
+      "source": "ecn",
+      "slot": 2,
+      "part": "num"
+    },
+    "4": {
+      "label": "ЭЦН 4Я №",
+      "copyable": true,
+      "source": "ecn",
+      "slot": 3,
+      "part": "num"
+    },
+    "5": {
+      "label": "ЭЦН 5Я №",
+      "copyable": true,
+      "source": "ecn",
+      "slot": 4,
+      "part": "num"
+    },
+    "6": {
+      "label": "ЭЦН 6Я №",
+      "copyable": true,
+      "source": "ecn",
+      "slot": 5,
+      "part": "num"
+    },
+    "7": {
+      "label": "ЭЦН 7Я №",
+      "copyable": true,
+      "source": "ecn",
+      "slot": 6,
+      "part": "num"
+    },
+    "31": {
+      "label": "ЭЦН 1Я марка",
+      "copyable": false,
+      "source": "ecn",
+      "slot": 0,
+      "part": "marka"
+    },
+    "32": {
+      "label": "ЭЦН 2Я марка",
+      "copyable": false,
+      "source": "ecn",
+      "slot": 1,
+      "part": "marka"
+    },
+    "33": {
+      "label": "ЭЦН 3Я марка",
+      "copyable": false,
+      "source": "ecn",
+      "slot": 2,
+      "part": "marka"
+    },
+    "34": {
+      "label": "ЭЦН 4Я марка",
+      "copyable": false,
+      "source": "ecn",
+      "slot": 3,
+      "part": "marka"
+    },
+    "35": {
+      "label": "ЭЦН 5Я марка",
+      "copyable": false,
+      "source": "ecn",
+      "slot": 4,
+      "part": "marka"
+    },
+    "36": {
+      "label": "ЭЦН 6Я марка",
+      "copyable": false,
+      "source": "ecn",
+      "slot": 5,
+      "part": "marka"
+    },
+    "37": {
+      "label": "ЭЦН 7Я марка",
+      "copyable": false,
+      "source": "ecn",
+      "slot": 6,
+      "part": "marka"
+    },
+    "38": {
+      "label": "ЭЦН 1Я приз",
+      "copyable": false,
+      "source": "ecn",
+      "slot": 0,
+      "part": "priz"
+    },
+    "39": {
+      "label": "ЭЦН 2Я приз",
+      "copyable": false,
+      "source": "ecn",
+      "slot": 1,
+      "part": "priz"
+    },
+    "40": {
+      "label": "ЭЦН 3Я приз",
+      "copyable": false,
+      "source": "ecn",
+      "slot": 2,
+      "part": "priz"
+    },
+    "41": {
+      "label": "ЭЦН 4Я приз",
+      "copyable": false,
+      "source": "ecn",
+      "slot": 3,
+      "part": "priz"
+    },
+    "42": {
+      "label": "ЭЦН 5Я приз",
+      "copyable": false,
+      "source": "ecn",
+      "slot": 4,
+      "part": "priz"
+    },
+    "43": {
+      "label": "ЭЦН 6Я приз",
+      "copyable": false,
+      "source": "ecn",
+      "slot": 5,
+      "part": "priz"
+    },
+    "44": {
+      "label": "ЭЦН 7Я приз",
+      "copyable": false,
+      "source": "ecn",
+      "slot": 6,
+      "part": "priz"
+    },
+    "8": {
+      "label": "МЛГ №",
+      "copyable": true,
+      "source": "mlg",
+      "part": "num"
+    },
+    "45": {
+      "label": "МЛГ тип",
+      "copyable": false,
+      "source": "mlg",
+      "part": "type"
+    },
+    "46": {
+      "label": "МЛГ приз",
+      "copyable": false,
+      "source": "mlg",
+      "part": "priz"
+    },
+    "30": {
+      "label": "ЭД 1Я №",
+      "copyable": true,
+      "source": "ed",
+      "slot": 0,
+      "part": "num"
+    },
+    "9": {
+      "label": "ЭД 2Я №",
+      "copyable": true,
+      "source": "ed",
+      "slot": 1,
+      "part": "num"
+    },
+    "47": {
+      "label": "ЭД тип",
+      "copyable": false,
+      "source": "ed",
+      "part": "type"
+    },
+    "48": {
+      "label": "ЭД 2Я приз",
+      "copyable": false,
+      "source": "ed",
+      "slot": 1,
+      "part": "priz"
+    },
+    "10": {
+      "label": "Датчик №",
+      "copyable": true,
+      "source": "sensor",
+      "part": "num"
+    },
+    "49": {
+      "label": "Датчик тип",
+      "copyable": false,
+      "source": "sensor",
+      "part": "type"
+    },
+    "50": {
+      "label": "Датчик приз",
+      "copyable": false,
+      "source": "sensor",
+      "part": "priz"
+    },
+    "11": {
+      "label": "ППО №",
+      "copyable": true,
+      "source": "ppo",
+      "part": "num"
+    },
+    "12": {
+      "label": "Г/С №",
+      "copyable": true,
+      "source": "gs",
+      "part": "num"
+    },
+    "51": {
+      "label": "Г/С тип",
+      "copyable": false,
+      "source": "gs",
+      "part": "type"
+    },
+    "52": {
+      "label": "Г/С приз",
+      "copyable": false,
+      "source": "gs",
+      "part": "priz"
+    },
+    "13": {
+      "label": "ГЗ №",
+      "copyable": true,
+      "source": "gz",
+      "part": "num"
+    },
+    "53": {
+      "label": "ГЗ тип",
+      "copyable": false,
+      "source": "gz",
+      "part": "type"
+    },
+    "54": {
+      "label": "ГЗ приз",
+      "copyable": false,
+      "source": "gz",
+      "part": "priz"
+    },
+    "14": {
+      "label": "МС №",
+      "copyable": true,
+      "source": "ms",
+      "part": "num"
+    },
+    "55": {
+      "label": "МС тип",
+      "copyable": false,
+      "source": "ms",
+      "part": "type"
+    },
+    "56": {
+      "label": "МС приз",
+      "copyable": false,
+      "source": "ms",
+      "part": "priz"
+    },
+    "15": {
+      "label": "ОК1 №",
+      "copyable": true,
+      "source": "ok",
+      "slot": 0,
+      "part": "num"
+    },
+    "16": {
+      "label": "ОК2 №",
+      "copyable": true,
+      "source": "ok",
+      "slot": 1,
+      "part": "num"
+    },
+    "17": {
+      "label": "ШУ1 №",
+      "copyable": true,
+      "source": "ok",
+      "slot": 0,
+      "part": "shuNum"
+    },
+    "18": {
+      "label": "ШУ2 №",
+      "copyable": true,
+      "source": "ok",
+      "slot": 1,
+      "part": "shuNum"
+    },
+    "57": {
+      "label": "ОК1 тип",
+      "copyable": false,
+      "source": "ok",
+      "slot": 0,
+      "part": "type"
+    },
+    "58": {
+      "label": "ОК2 тип",
+      "copyable": false,
+      "source": "ok",
+      "slot": 1,
+      "part": "type"
+    },
+    "59": {
+      "label": "ОК1 приз",
+      "copyable": false,
+      "source": "ok",
+      "slot": 0,
+      "part": "priz"
+    },
+    "60": {
+      "label": "ОК2 приз",
+      "copyable": false,
+      "source": "ok",
+      "slot": 1,
+      "part": "priz"
+    },
+    "61": {
+      "label": "ШУ1 тип",
+      "copyable": false,
+      "source": "ok",
+      "slot": 0,
+      "part": "shuType"
+    },
+    "62": {
+      "label": "ШУ2 тип",
+      "copyable": false,
+      "source": "ok",
+      "slot": 1,
+      "part": "shuType"
+    },
+    "63": {
+      "label": "ШУ1 приз",
+      "copyable": false,
+      "source": "ok",
+      "slot": 0,
+      "part": "shuPriz"
+    },
+    "64": {
+      "label": "ШУ2 приз",
+      "copyable": false,
+      "source": "ok",
+      "slot": 1,
+      "part": "shuPriz"
+    },
+    "73": {
+      "label": "КС №",
+      "copyable": true,
+      "source": "ks",
+      "part": "num"
+    },
+    "74": {
+      "label": "КС тип",
+      "copyable": false,
+      "source": "ks",
+      "part": "type"
+    },
+    "75": {
+      "label": "КС приз",
+      "copyable": false,
+      "source": "ks",
+      "part": "priz"
+    },
+    "19": {
+      "label": "Сепаратор №",
+      "copyable": true,
+      "source": "filter",
+      "part": "num1"
+    },
+    "20": {
+      "label": "Разобщитель №",
+      "copyable": true,
+      "source": "filter",
+      "part": "num2"
+    },
+    "76": {
+      "label": "Сеп. тип",
+      "copyable": false,
+      "source": "filter",
+      "part": "type1"
+    },
+    "77": {
+      "label": "Разоб. тип",
+      "copyable": false,
+      "source": "filter",
+      "part": "type2"
+    },
+    "21": {
+      "label": "Пр1 №",
+      "copyable": true,
+      "source": "prot",
+      "slot": 0,
+      "part": "num"
+    },
+    "22": {
+      "label": "Пр2 №",
+      "copyable": true,
+      "source": "prot",
+      "slot": 1,
+      "part": "num"
+    },
+    "23": {
+      "label": "Пр3 №",
+      "copyable": true,
+      "source": "prot",
+      "slot": 2,
+      "part": "num"
+    },
+    "24": {
+      "label": "Пр4 №",
+      "copyable": true,
+      "source": "prot",
+      "slot": 3,
+      "part": "num"
+    },
+    "25": {
+      "label": "Пр5 №",
+      "copyable": true,
+      "source": "prot",
+      "slot": 4,
+      "part": "num"
+    },
+    "26": {
+      "label": "Пр6 №",
+      "copyable": true,
+      "source": "prot",
+      "slot": 5,
+      "part": "num"
+    },
+    "27": {
+      "label": "Пр7 №",
+      "copyable": true,
+      "source": "prot",
+      "slot": 6,
+      "part": "num"
+    },
+    "28": {
+      "label": "Пр8 №",
+      "copyable": true,
+      "source": "prot",
+      "slot": 7,
+      "part": "num"
+    },
+    "78": {
+      "label": "Пр1 марка",
+      "copyable": false,
+      "source": "prot",
+      "slot": 0,
+      "part": "marka"
+    },
+    "79": {
+      "label": "Пр2 марка",
+      "copyable": false,
+      "source": "prot",
+      "slot": 1,
+      "part": "marka"
+    },
+    "80": {
+      "label": "Пр3 марка",
+      "copyable": false,
+      "source": "prot",
+      "slot": 2,
+      "part": "marka"
+    },
+    "81": {
+      "label": "Пр4 марка",
+      "copyable": false,
+      "source": "prot",
+      "slot": 3,
+      "part": "marka"
+    },
+    "82": {
+      "label": "Пр5 марка",
+      "copyable": false,
+      "source": "prot",
+      "slot": 4,
+      "part": "marka"
+    },
+    "83": {
+      "label": "Пр6 марка",
+      "copyable": false,
+      "source": "prot",
+      "slot": 5,
+      "part": "marka"
+    },
+    "84": {
+      "label": "Пр7 марка",
+      "copyable": false,
+      "source": "prot",
+      "slot": 6,
+      "part": "marka"
+    },
+    "85": {
+      "label": "Пр8 марка",
+      "copyable": false,
+      "source": "prot",
+      "slot": 7,
+      "part": "marka"
+    },
+    "65": {
+      "label": "Пр1 приз",
+      "copyable": false,
+      "source": "prot",
+      "slot": 0,
+      "part": "priz"
+    },
+    "66": {
+      "label": "Пр2 приз",
+      "copyable": false,
+      "source": "prot",
+      "slot": 1,
+      "part": "priz"
+    },
+    "67": {
+      "label": "Пр3 приз",
+      "copyable": false,
+      "source": "prot",
+      "slot": 2,
+      "part": "priz"
+    },
+    "68": {
+      "label": "Пр4 приз",
+      "copyable": false,
+      "source": "prot",
+      "slot": 3,
+      "part": "priz"
+    },
+    "69": {
+      "label": "Пр5 приз",
+      "copyable": false,
+      "source": "prot",
+      "slot": 4,
+      "part": "priz"
+    },
+    "70": {
+      "label": "Пр6 приз",
+      "copyable": false,
+      "source": "prot",
+      "slot": 5,
+      "part": "priz"
+    },
+    "71": {
+      "label": "Пр7 приз",
+      "copyable": false,
+      "source": "prot",
+      "slot": 6,
+      "part": "priz"
+    },
+    "72": {
+      "label": "Пр8 приз",
+      "copyable": false,
+      "source": "prot",
+      "slot": 7,
+      "part": "priz"
+    }
   },
   "layouts": {
     "full": {
       "name": "Полный (3 колонки)",
       "copyMode": "perField",
       "rows": [
-        { "label": "Комплект №", "cols": 1, "ids": ["29"] },
-        { "cols": 3, "ids": ["1", "31", "38"] },
-        { "cols": 3, "ids": ["2", "32", "39"] },
-        { "cols": 3, "ids": ["3", "33", "40"] },
-        { "cols": 3, "ids": ["4", "34", "41"] },
-        { "cols": 3, "ids": ["5", "35", "42"] },
-        { "cols": 3, "ids": ["6", "36", "43"] },
-        { "cols": 3, "ids": ["7", "37", "44"] },
-        { "cols": 3, "ids": ["8", "45", "46"] },
-        { "gap": true },
-        { "cols": 3, "ids": ["30", "47", "48"] },
-        { "cols": 3, "ids": ["9", "47", "48"] },
-        { "cols": 3, "ids": ["10", "49", "50"] },
-        { "label": "ППО", "labelIf": "11", "cols": 1, "ids": ["11"] },
-        { "gap": true },
-        { "cols": 3, "ids": ["12", "51", "52"] },
-        { "cols": 3, "ids": ["13", "53", "54"] },
-        { "cols": 3, "ids": ["14", "55", "56"] },
-        { "gap": true },
-        { "cols": 3, "ids": ["15", "57", "59"] },
-        { "cols": 3, "ids": ["17", "61", "63"] },
-        { "cols": 3, "ids": ["16", "58", "60"] },
-        { "cols": 3, "ids": ["18", "62", "64"] },
-        { "cols": 3, "ids": ["73", "74", "75"] },
-        { "gap": true },
-        { "cols": 2, "ids": ["19", "76"] },
-        { "cols": 2, "ids": ["20", "77"] },
-        { "gap": true },
-        { "cols": 3, "ids": ["21", "78", "65"] },
-        { "cols": 3, "ids": ["22", "79", "66"] },
-        { "cols": 3, "ids": ["23", "80", "67"] },
-        { "cols": 3, "ids": ["24", "81", "68"] },
-        { "cols": 3, "ids": ["25", "82", "69"] },
-        { "cols": 3, "ids": ["26", "83", "70"] },
-        { "cols": 3, "ids": ["27", "84", "71"] },
-        { "cols": 3, "ids": ["28", "85", "72"] }
+        {
+          "label": "Комплект №",
+          "cols": 1,
+          "ids": [
+            "29"
+          ]
+        },
+        {
+          "cols": 3,
+          "ids": [
+            "1",
+            "31",
+            "38"
+          ]
+        },
+        {
+          "cols": 3,
+          "ids": [
+            "2",
+            "32",
+            "39"
+          ]
+        },
+        {
+          "cols": 3,
+          "ids": [
+            "3",
+            "33",
+            "40"
+          ]
+        },
+        {
+          "cols": 3,
+          "ids": [
+            "4",
+            "34",
+            "41"
+          ]
+        },
+        {
+          "cols": 3,
+          "ids": [
+            "5",
+            "35",
+            "42"
+          ]
+        },
+        {
+          "cols": 3,
+          "ids": [
+            "6",
+            "36",
+            "43"
+          ]
+        },
+        {
+          "cols": 3,
+          "ids": [
+            "7",
+            "37",
+            "44"
+          ]
+        },
+        {
+          "cols": 3,
+          "ids": [
+            "8",
+            "45",
+            "46"
+          ]
+        },
+        {
+          "gap": true
+        },
+        {
+          "cols": 1,
+          "ids": [
+            "30"
+          ]
+        },
+        {
+          "cols": 3,
+          "ids": [
+            null,
+            "47",
+            "48"
+          ],
+          "align": "mid"
+        },
+        {
+          "cols": 1,
+          "ids": [
+            "9"
+          ]
+        },
+        {
+          "cols": 3,
+          "ids": [
+            "10",
+            "49",
+            "50"
+          ]
+        },
+        {
+          "label": "ППО",
+          "labelIf": "11",
+          "cols": 2,
+          "ids": [
+            "11"
+          ],
+          "labelCol": 2
+        },
+        {
+          "gap": true
+        },
+        {
+          "cols": 3,
+          "ids": [
+            "12",
+            "51",
+            "52"
+          ]
+        },
+        {
+          "cols": 3,
+          "ids": [
+            "13",
+            "53",
+            "54"
+          ]
+        },
+        {
+          "cols": 3,
+          "ids": [
+            "14",
+            "55",
+            "56"
+          ]
+        },
+        {
+          "gap": true
+        },
+        {
+          "cols": 3,
+          "ids": [
+            "15",
+            "57",
+            "59"
+          ]
+        },
+        {
+          "cols": 3,
+          "ids": [
+            "17",
+            "61",
+            "63"
+          ]
+        },
+        {
+          "cols": 3,
+          "ids": [
+            "16",
+            "58",
+            "60"
+          ]
+        },
+        {
+          "cols": 3,
+          "ids": [
+            "18",
+            "62",
+            "64"
+          ]
+        },
+        {
+          "cols": 3,
+          "ids": [
+            "73",
+            "74",
+            "75"
+          ]
+        },
+        {
+          "gap": true
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "19",
+            "76"
+          ]
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "20",
+            "77"
+          ]
+        },
+        {
+          "gap": true
+        },
+        {
+          "cols": 3,
+          "ids": [
+            "21",
+            "78",
+            "65"
+          ]
+        },
+        {
+          "cols": 3,
+          "ids": [
+            "22",
+            "79",
+            "66"
+          ]
+        },
+        {
+          "cols": 3,
+          "ids": [
+            "23",
+            "80",
+            "67"
+          ]
+        },
+        {
+          "cols": 3,
+          "ids": [
+            "24",
+            "81",
+            "68"
+          ]
+        },
+        {
+          "cols": 3,
+          "ids": [
+            "25",
+            "82",
+            "69"
+          ]
+        },
+        {
+          "cols": 3,
+          "ids": [
+            "26",
+            "83",
+            "70"
+          ]
+        },
+        {
+          "cols": 3,
+          "ids": [
+            "27",
+            "84",
+            "71"
+          ]
+        },
+        {
+          "cols": 3,
+          "ids": [
+            "28",
+            "85",
+            "72"
+          ]
+        }
       ]
     },
     "compact": {
       "name": "Компактный (2 колонки + копировать всё)",
       "copyMode": "all",
-      "copyIds": ["1","2","3","4","5","6","7","8","30","9","10","11","12","13","14","15","17","16","18","73","19","20","21","22","23","24","25","26","27","28"],
+      "copyIds": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "30",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "17",
+        "16",
+        "18",
+        "73",
+        "19",
+        "20",
+        "21",
+        "22",
+        "23",
+        "24",
+        "25",
+        "26",
+        "27",
+        "28"
+      ],
       "rows": [
-        { "label": "Комплект №", "cols": 1, "ids": ["29"] },
-        { "cols": 2, "ids": ["1", "31"] },
-        { "cols": 2, "ids": ["2", "32"] },
-        { "cols": 2, "ids": ["3", "33"] },
-        { "cols": 2, "ids": ["4", "34"] },
-        { "cols": 2, "ids": ["5", "35"] },
-        { "cols": 2, "ids": ["6", "36"] },
-        { "cols": 2, "ids": ["7", "37"] },
-        { "cols": 2, "ids": ["8", "45"] },
-        { "gap": true },
-        { "cols": 2, "ids": ["30", "47"] },
-        { "cols": 2, "ids": ["9", "47"] },
-        { "cols": 2, "ids": ["10", "49"] },
-        { "label": "ППО", "labelIf": "11", "cols": 1, "ids": ["11"] },
-        { "gap": true },
-        { "cols": 2, "ids": ["12", "51"] },
-        { "cols": 2, "ids": ["13", "53"] },
-        { "cols": 2, "ids": ["14", "55"] },
-        { "gap": true },
-        { "cols": 2, "ids": ["15", "57"] },
-        { "cols": 2, "ids": ["17", "61"] },
-        { "cols": 2, "ids": ["16", "58"] },
-        { "cols": 2, "ids": ["18", "62"] },
-        { "cols": 2, "ids": ["73", "74"] },
-        { "gap": true },
-        { "cols": 2, "ids": ["19", "76"] },
-        { "cols": 2, "ids": ["20", "77"] },
-        { "gap": true },
-        { "cols": 2, "ids": ["21", "78"] },
-        { "cols": 2, "ids": ["22", "79"] },
-        { "cols": 2, "ids": ["23", "80"] },
-        { "cols": 2, "ids": ["24", "81"] },
-        { "cols": 2, "ids": ["25", "82"] },
-        { "cols": 2, "ids": ["26", "83"] },
-        { "cols": 2, "ids": ["27", "84"] },
-        { "cols": 2, "ids": ["28", "85"] }
+        {
+          "label": "Комплект №",
+          "cols": 1,
+          "ids": [
+            "29"
+          ]
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "1",
+            "31"
+          ]
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "2",
+            "32"
+          ]
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "3",
+            "33"
+          ]
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "4",
+            "34"
+          ]
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "5",
+            "35"
+          ]
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "6",
+            "36"
+          ]
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "7",
+            "37"
+          ]
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "8",
+            "45"
+          ]
+        },
+        {
+          "gap": true
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "30",
+            "47"
+          ]
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "9",
+            "47"
+          ]
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "10",
+            "49"
+          ]
+        },
+        {
+          "label": "ППО",
+          "labelIf": "11",
+          "cols": 2,
+          "ids": [
+            "11"
+          ],
+          "labelCol": 2
+        },
+        {
+          "gap": true
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "12",
+            "51"
+          ]
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "13",
+            "53"
+          ]
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "14",
+            "55"
+          ]
+        },
+        {
+          "gap": true
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "15",
+            "57"
+          ]
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "17",
+            "61"
+          ]
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "16",
+            "58"
+          ]
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "18",
+            "62"
+          ]
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "73",
+            "74"
+          ]
+        },
+        {
+          "gap": true
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "19",
+            "76"
+          ]
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "20",
+            "77"
+          ]
+        },
+        {
+          "gap": true
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "21",
+            "78"
+          ]
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "22",
+            "79"
+          ]
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "23",
+            "80"
+          ]
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "24",
+            "81"
+          ]
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "25",
+            "82"
+          ]
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "26",
+            "83"
+          ]
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "27",
+            "84"
+          ]
+        },
+        {
+          "cols": 2,
+          "ids": [
+            "28",
+            "85"
+          ]
+        }
       ]
     }
   },

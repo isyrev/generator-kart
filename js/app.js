@@ -117,25 +117,41 @@
       var ids = row.ids || [];
       var cls = cols === 3 ? 'row3' : cols === 2 ? 'row2' : 'row1';
 
-      // Компакт + ППО: [номер] | «ППО»  — подпись во 2-й колонке
-      if (copyMode === 'all' && labelIfActive && row.label) {
+      // ППО: [номер] | «ППО» во 2-й колонке (и полный, и компактный)
+      if (labelIfActive && row.label && (row.labelCol === 2 || copyMode === 'all')) {
         html += '<div class="row2">';
         var id0 = String(ids[0] || row.labelIf);
-        var f0 = fields[id0] || {};
         var val0 = values[id0] != null ? values[id0] : '-';
-        html += cellStatic(val0);
+        var f0 = fields[id0] || {};
+        if (copyMode === 'perField' && f0.copyable) html += cellCopy(val0);
+        else html += cellStatic(val0);
         html += '<span class="row-label col2">' + esc(row.label) + '</span>';
+        html += '</div>';
+        continue;
+      }
+
+      // Строка с «дырками» (null): например [—, 47, 48] между 30 и 9
+      if (ids.some(function (x) { return x == null; })) {
+        html += '<div class="' + cls + ' ed-mid">';
+        for (var j = 0; j < ids.length; j++) {
+          if (ids[j] == null) {
+            html += '<span class="spacer"></span>';
+            continue;
+          }
+          var id = String(ids[j]);
+          var f = fields[id] || {};
+          var val = values[id] != null ? values[id] : '-';
+          if (copyMode === 'perField' && f.copyable) html += cellCopy(val);
+          else html += cellStatic(val);
+        }
         html += '</div>';
         continue;
       }
 
       html += '<div class="' + cls + '">';
 
-      // Полный режим: «Комплект №» / «ППО» слева от значения
-      if (row.label && copyMode === 'perField') {
-        html += '<span class="row-label">' + esc(row.label) + '</span>';
-      } else if (row.label && !labelIfActive) {
-        // компакт: «Комплект №» тоже показываем
+      // «Комплект №» всегда слева
+      if (row.label && !labelIfActive) {
         html += '<span class="row-label">' + esc(row.label) + '</span>';
       }
 
