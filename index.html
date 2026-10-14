@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Извлечение полей УЭЦН</title>
+<title>Извлечение № узлов</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <link rel="stylesheet" href="css/style.css">
 </head>
@@ -12,7 +12,7 @@
 <div id="dragOverlay"><span>Отпустите файл .docx</span></div>
 
 <header class="top">
-  <div class="brand">УЭЦН · извлечение полей</div>
+  <div class="brand">УЭЦН  извлечение № узлов</div>
   <div class="controls">
     <label class="sel-label">Шаблон
       <select id="templateSelect"></select>
@@ -24,17 +24,14 @@
 </header>
 
 <div id="dropZone">
-  Перетащите сюда файл .docx
-  <div class="hint">можно бросить в любое место страницы — или нажмите, чтобы выбрать</div>
+  Закинь сюда паспорт
+  <div class="hint">можно бросить в любое место страницы</div>
   <div id="status"></div>
 </div>
 <input type="file" id="fileInput" accept=".docx" style="display:none">
 
 <div id="output"></div>
 
-<footer class="foot">
-  Шаблоны в <code>templates/</code> · добавить новый: JSON + запись в <code>templates/index.json</code>
-</footer>
 
 <script src="js/parser.js"></script>
 <script src="js/app.js"></script>
