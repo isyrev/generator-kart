@@ -227,45 +227,29 @@
     }
     if (ed2Row >= 0) {
       var s = S(ed2Row).filter(function (t) { return t !== ''; });
-      // possible: 2Я, L, num, diam, mufta, priz, factory
-      // or: 2Я, num, diam, mufta, priz, factory
+      // Типично: 2Я, L?, num, diam, mufta, priz, factory
+      // или: 2Я, num, diam, mufta, priz, factory
       var num = '-', diam = '-', mufta = '-', priz = '-';
-      for (var i = 0; i < s.length; i++) {
+      for (var i = 1; i < s.length; i++) {
         var t = s[i];
-        if (/^[A-Za-zА-Яа-яЁёXxХх]\d{5,}/.test(t) || /^\d{8,}$/.test(t) || /^\[9\]$/.test(t)) {
-          if (num === '-') num = t;
+        if (/^(Р|Н|К\/Р|К)$/i.test(t)) { priz = t; continue; }
+        if (/\dЭ[хxХ]\d/i.test(t) || /^\d{2}Э$/i.test(t) || /^\[97\]$/.test(t)) {
+          diam = t; continue;
         }
-      }
-      // positional fallback for new template: label, ?, num, diam, mufta, priz
-      if (s.length >= 6) {
-        // find index of num-like
-        for (var i = 1; i < s.length; i++) {
-          var t = s[i];
-          if (/^\d{5,}$/.test(t) || /^[A-Za-zА-Яа-я]\d{4,}/.test(t) || /^\[9\]$/.test(t)) {
-            num = t;
-            if (s[i + 1]) diam = s[i + 1];
-            if (s[i + 2]) mufta = s[i + 2];
-            if (s[i + 3] && /^(Р|Н|К\/Р|К)$/i.test(s[i + 3])) priz = s[i + 3];
-            else if (s[i + 3]) {
-              // maybe order is num, diam, mufta, priz
-              if (/^(Р|Н|К\/Р|К)$/i.test(s[i + 3])) priz = s[i + 3];
-            }
-            break;
-          }
+        if (/^\d+[.,‚]\d+$/.test(t) && parseFloat(String(t).replace('‚','.')) < 30) {
+          // L length — skip
+          continue;
         }
-      }
-      for (var i = 0; i < s.length; i++) {
-        if (/^(Р|Н|К\/Р|К)$/i.test(s[i])) priz = s[i];
+        if (/БОРЕЦ|ЛЕМАЗ|АВИС|АНТЕЙ|АЛНАС/i.test(t)) continue;
+        if (/^\d{5,}$/.test(t) || /^[A-Za-zА-Яа-яЁёXxХх]\d{4,}/.test(t) || /^\[9\]$/.test(t)) {
+          if (num === '-') { num = t; continue; }
+          if (mufta === '-') { mufta = t; continue; }
+        }
       }
       ed.slots[1].num = ph(num);
       ed.slots[1].diam = ph(diam);
       ed.slots[1].mufta = ph(mufta);
       ed.slots[1].priz = ph(priz);
-      if (isEmpty(ed.type)) {
-        for (var i = 0; i < s.length; i++) {
-          if (/ЭДБ|ПЭД|-\d+В|Д\d/i.test(s[i])) { ed.type = ph(s[i]); break; }
-        }
-      }
     }
 
     /* ── Датчик ── */
@@ -338,39 +322,31 @@
       var o = { type: '-', num: '-', priz: '-', mufta: '-', diam: '-' };
       if (row < 0) return o;
       var s = S(row);
-      // Find positions by content
-      o.type = ph(s[1]);
-      // scan for num (long digits / serial), mufta, diam, priz
-      for (var i = 2; i < s.length; i++) {
-        var t = s[i];
-        if (/^(Р|Н|К\/Р|К)$/i.test(t)) { o.priz = ph(t); continue; }
-        if (/^\[\d+\]$/.test(t)) continue;
-        if (/^\d+[.,‚]\d+$/.test(t) && parseFloat(t.replace('‚', '.')) < 50) {
-          // L length small float — skip if already have diam candidate
-          continue;
+      // Структура (после stripLead):
+      // 0:label  1:type  2:масло  3:Øвала  4:L  5:№узла  6:№муфты  7:приз  8:maxN  …
+      o.type  = ph(s[1]);
+      o.diam  = ph(s[3]);
+      o.num   = ph(s[5]);
+      o.mufta = ph(s[6]);
+      o.priz  = ph(s[7]);
+      // fallback если короткая строка
+      if (s.length < 8) {
+        for (var i = 2; i < s.length; i++) {
+          var t = s[i];
+          if (/^(Р|Н|К\/Р|К)$/i.test(t)) { o.priz = ph(t); continue; }
+          if (/\dЭ[хxХ]\d/i.test(t) || /^\d{2}Э$/i.test(t)) {
+            if (o.diam === '-') o.diam = ph(t);
+            continue;
+          }
+          if (/^\d{5,}$/.test(t) || /^[A-Za-zА-Яа-яЁё]\d{4,}/.test(t)) {
+            if (o.num === '-') { o.num = ph(t); continue; }
+            if (o.mufta === '-') { o.mufta = ph(t); continue; }
+          }
         }
-        if (/^\d+[.,‚]\d+$/.test(t) || /^\d{2,3}([ЭэXxХх]\d{2,3})?$/.test(t) || /^\[(98|99|150)\]$/.test(t)) {
-          if (o.diam === '-') o.diam = ph(t);
-          continue;
-        }
-        if (/^\d{5,}$/.test(t) || /^[A-Za-zА-Яа-яЁё]\d{4,}/.test(t) || /^\[(12|13|14)\]$/.test(t)) {
-          if (o.num === '-') { o.num = ph(t); continue; }
-          if (o.mufta === '-') { o.mufta = ph(t); continue; }
-        }
-        if (/^\d{6,}$/.test(t) || /^\*\d+\*$/.test(t)) {
-          if (o.mufta === '-') o.mufta = ph(t.replace(/\*/g, ''));
-        }
-      }
-      // positional fallback for known structure
-      if (s.length >= 8) {
-        // label, type, ?, diam, L, num, mufta, priz
-        if (o.num === '-' || o.num === undefined) o.num = ph(s[5]);
-        if (o.mufta === '-') o.mufta = ph(s[6]);
-        if (o.priz === '-') o.priz = ph(s[7]);
-        if (o.diam === '-') o.diam = ph(s[3]);
       }
       return o;
     }
+
     var gs = equip(/Г\/С|Диспергатор|Газосеп/i);
     var gz = equip(/Гидрозащита/i);
     var ms = equip(/Модуль\s*смещ/i);
