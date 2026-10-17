@@ -59,7 +59,7 @@
       btn.textContent = '✓ ' + lines.length + ' шт.';
       btn.classList.add('copied');
       setTimeout(function () {
-        btn.textContent = mode.copyMode === 'mufty' ? 'Копировать муфты' : 'Копировать';
+        btn.textContent = 'Копировать';
         btn.classList.remove('copied');
       }, 1500);
     });
@@ -77,6 +77,19 @@
     return currentTemplate.modes[currentMode] || currentTemplate.modes[currentTemplate.defaultMode];
   }
 
+  function cellWithCopy(v, asNode, withBtn) {
+    v = UecnParser.clean(v);
+    if (isEmpty(v)) return '<span class="empty">—</span>';
+    var cls = asNode ? 'num' : 'txt';
+    var html = '<span class="' + cls + '">' + esc(v) + '</span>';
+    if (withBtn) {
+      var id = 'c' + Math.random().toString(36).slice(2, 9);
+      html = '<span class="cell-copy" id="' + id + '">' + html +
+        '<button class="btn-sm" onclick="copyVal(document.querySelector(\'#' + id + ' .' + cls + '\').textContent,this)">Копировать</button></span>';
+    }
+    return html;
+  }
+
   function render(values) {
     lastValues = values;
     var mode = getMode();
@@ -85,9 +98,9 @@
     var headers = mode.headers || [];
     var rows = mode.rows || [];
     var colCount = headers.length;
+    var copyMode = mode.copyMode || 'none';
     var html = '';
 
-    // header
     html += '<div class="tbl-head" style="grid-template-columns: repeat(' + colCount + ', minmax(0,1fr))">';
     for (var h = 0; h < headers.length; h++) {
       html += '<div class="th">' + esc(headers[h]) + '</div>';
@@ -99,50 +112,54 @@
       var row = rows[i];
       var ids = row.ids || [];
 
-      // PPO: hide if empty
-      if (row.ppo) {
-        var ppoVal = UecnParser.clean(values[ids[0]]);
-        if (isEmpty(ppoVal)) continue;
-      }
-
-      // Комплект №
-      if (row.label) {
-        html += '<div class="tbl-row label-row" style="grid-template-columns: auto 1fr">';
-        html += '<span class="row-label">' + esc(row.label) + '</span>';
-        html += cell(values[ids[0]], true);
+      // ЭД: [30]/[9] слева стеком, общие значения справа
+      if (row.edGroup) {
+        var nodes = row.nodes || [];
+        var shared = row.shared || [];
+        var sharedCount = colCount - 1;
+        html += '<div class="tbl-row ed-group" style="grid-template-columns: minmax(0,1fr) repeat(' + sharedCount + ', minmax(0,1fr))">';
+        // left stacked nodes
+        html += '<div class="td ed-nodes">';
+        for (var ni = 0; ni < nodes.length; ni++) {
+          html += '<div class="ed-node">' + cellWithCopy(values[nodes[ni]], true, copyMode === 'perCell') + '</div>';
+        }
         html += '</div>';
-        continue;
-      }
-
-      // mid row (47/48 between 30 and 9)
-      if (row.mid) {
-        html += '<div class="tbl-row mid-row" style="grid-template-columns: repeat(' + colCount + ', minmax(0,1fr))">';
-        for (var j = 0; j < colCount; j++) {
-          if (j < ids.length && ids[j] != null) {
-            html += '<div class="td">' + cell(values[ids[j]], false) + '</div>';
+        // shared cells spanning both rows
+        for (var si = 0; si < sharedCount; si++) {
+          if (si < shared.length && shared[si] != null) {
+            // last shared may be mufta -> copy button in EPOS
+            var isMufta = (copyMode === 'perCell' && si === sharedCount - 1 && sharedCount >= 2);
+            // also mid shared are not nodes
+            html += '<div class="td ed-shared">' + cellWithCopy(values[shared[si]], false, isMufta) + '</div>';
           } else {
-            html += '<div class="td"></div>';
+            html += '<div class="td ed-shared"></div>';
           }
         }
         html += '</div>';
         continue;
       }
 
-      // span: only first col (30 or 9 alone)
-      if (row.span) {
-        html += '<div class="tbl-row" style="grid-template-columns: repeat(' + colCount + ', minmax(0,1fr))">';
-        html += '<div class="td">' + cell(values[ids[0]], true) + '</div>';
-        for (var j = 1; j < colCount; j++) html += '<div class="td"></div>';
+      if (row.ppo) {
+        var ppoVal = UecnParser.clean(values[ids[0]]);
+        if (isEmpty(ppoVal)) continue;
+      }
+
+      if (row.label) {
+        html += '<div class="tbl-row label-row" style="grid-template-columns: auto 1fr">';
+        html += '<span class="row-label">' + esc(row.label) + '</span>';
+        html += cellWithCopy(values[ids[0]], true, copyMode === 'perCell');
         html += '</div>';
         continue;
       }
 
-      // normal row — pad to colCount
+      // normal row
       html += '<div class="tbl-row" style="grid-template-columns: repeat(' + colCount + ', minmax(0,1fr))">';
+      var copyCols = row.copyCols || (copyMode === 'perCell' ? [0] : []);
       for (var j = 0; j < colCount; j++) {
         if (j < ids.length && ids[j] != null) {
           var isNum = (j === 0);
-          html += '<div class="td">' + cell(values[ids[j]], isNum) + '</div>';
+          var doCopy = copyMode === 'perCell' && copyCols.indexOf(j) >= 0;
+          html += '<div class="td">' + cellWithCopy(values[ids[j]], isNum, doCopy) + '</div>';
         } else {
           html += '<div class="td"></div>';
         }
@@ -151,15 +168,15 @@
     }
     html += '</div>';
 
-    // bulk copy button
-    if (mode.copyMode === 'nodes' || mode.copyMode === 'mufty') {
-      var btnLabel = mode.copyMode === 'mufty' ? 'Копировать муфты' : 'Копировать';
+    if (copyMode === 'nodes' || copyMode === 'mufty' || copyMode === 'nodesAndMufty') {
       html += '<div class="copy-all-wrap">' +
-        '<button class="btn btn-all" onclick="copyBulk(this)">' + btnLabel + '</button>' +
+        '<button class="btn btn-all" onclick="copyBulk(this)">Копировать</button>' +
         '<span class="copy-all-hint">' +
-        (mode.copyMode === 'mufty'
-          ? 'номера муфт [79]–[89], без пустых'
-          : 'номера узлов, без пустых, по порядку') +
+        (copyMode === 'mufty'
+          ? 'номера муфт, без пустых'
+          : copyMode === 'nodesAndMufty'
+            ? 'номера узлов и муфт, без пустых, по порядку'
+            : 'номера узлов, без пустых, по порядку') +
         '</span></div>';
     }
 

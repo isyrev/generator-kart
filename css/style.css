@@ -199,3 +199,43 @@ body { padding: 20px 28px 60px; }
   body { padding: 12px; }
   .tbl-head, .tbl-row { font-size: 13px; gap: 0 6px; padding: 5px 6px; }
 }
+
+.cell-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.btn-sm {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 3px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.btn-sm:hover { background: #3b82f6; }
+.btn-sm.copied { background: #059669; }
+
+/* ЭД: [30]/[9] стеком, общие поля справа */
+.ed-group {
+  align-items: stretch;
+}
+.ed-nodes {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  border-right: 1px solid #2e3348;
+  padding-right: 8px;
+}
+.ed-node {
+  display: flex;
+  align-items: center;
+}
+.ed-shared {
+  display: flex;
+  align-items: center;
+}

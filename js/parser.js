@@ -7,7 +7,9 @@
   function clean(s) {
     if (s == null) return '-';
     s = String(s).replace(/\u2000/g, ' ').replace(/\s+/g, ' ').trim();
-    if (!s || s === '-' || s === '*-*' || s === '*–*' || s === '…' ||
+    // убрать все звёздочки * вокруг/внутри значения
+    s = s.replace(/\*/g, '').trim();
+    if (!s || s === '-' || s === '–' || s === '…' ||
         s === '…..' || s === '….' || s === '—') return '-';
     // strip placeholder leftovers like [31]
     if (/^\[\d+\]$/.test(s)) return '-';
