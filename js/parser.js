@@ -226,22 +226,34 @@
       ed.slots[0].num = ph(n);
     }
     if (ed2Row >= 0) {
-      var s = S(ed2Row).filter(function (t) { return t !== ''; });
+      // Убираем пустые; * сразу срезаем для распознавания
+      var s = S(ed2Row).filter(function (t) { return t !== ''; })
+        .map(function (t) { return String(t).replace(/\*/g, '').trim(); })
+        .filter(function (t) { return t !== ''; });
       // Типично: 2Я, L?, num, diam, mufta, priz, factory
-      // или: 2Я, num, diam, mufta, priz, factory
       var num = '-', diam = '-', mufta = '-', priz = '-';
+      function isSerial(t) {
+        if (!t || t === '-') return false;
+        if (/^(Р|Н|К\/Р|К)$/i.test(t)) return false;
+        if (/БОРЕЦ|ЛЕМАЗ|АВИС|АНТЕЙ|АЛНАС|REDA|EZLINE|СЦ\s*ЭПУ/i.test(t)) return false;
+        if (/^\d+[.,‚]\d+$/.test(t)) return false; // L or float
+        if (/\dЭ[хxХ]/i.test(t) || /х0,?\d/i.test(t) || /^\d{2}Э$/i.test(t)) return false; // diam
+        // буквенно-цифровой заводской номер ≥ 6 символов
+        if (/[A-Za-zА-Яа-яЁё]/.test(t) && /\d/.test(t) && t.length >= 6) return true;
+        if (/^\d{6,}$/.test(t)) return true;
+        return false;
+      }
+      function isDiam(t) {
+        return /\dЭ[хxХ]/i.test(t) || /х0,?\d/i.test(t) || /^\d{2}Э$/i.test(t) ||
+               /\d+[.,]\d+х\d/i.test(t);
+      }
       for (var i = 1; i < s.length; i++) {
         var t = s[i];
         if (/^(Р|Н|К\/Р|К)$/i.test(t)) { priz = t; continue; }
-        if (/\dЭ[хxХ]\d/i.test(t) || /^\d{2}Э$/i.test(t) || /^\[97\]$/.test(t)) {
-          diam = t; continue;
-        }
-        if (/^\d+[.,‚]\d+$/.test(t) && parseFloat(String(t).replace('‚','.')) < 30) {
-          // L length — skip
-          continue;
-        }
-        if (/БОРЕЦ|ЛЕМАЗ|АВИС|АНТЕЙ|АЛНАС/i.test(t)) continue;
-        if (/^\d{5,}$/.test(t) || /^[A-Za-zА-Яа-яЁёXxХх]\d{4,}/.test(t) || /^\[9\]$/.test(t)) {
+        if (isDiam(t)) { diam = t; continue; }
+        if (/^\d+[.,‚]\d+$/.test(t) && parseFloat(String(t).replace('‚', '.')) < 30) continue; // L
+        if (/БОРЕЦ|ЛЕМАЗ|АВИС|АНТЕЙ|АЛНАС|REDA|EZLINE|СЦ\s*ЭПУ/i.test(t)) continue;
+        if (isSerial(t)) {
           if (num === '-') { num = t; continue; }
           if (mufta === '-') { mufta = t; continue; }
         }
@@ -350,6 +362,15 @@
     var gs = equip(/Г\/С|Диспергатор|Газосеп/i);
     var gz = equip(/Гидрозащита/i);
     var ms = equip(/Модуль\s*смещ/i);
+    // если муфта пустая — Ø вала тоже не показываем
+    function clearDiamIfNoMufta(o) {
+      if (!o) return;
+      var m = ph(o.mufta);
+      if (!m || m === '-') o.diam = '-';
+    }
+    clearDiamIfNoMufta(gs);
+    clearDiamIfNoMufta(gz);
+    clearDiamIfNoMufta(ms);
 
     /* ── ОК + ШУ ── */
     var okSlots = [
