@@ -1,7 +1,1 @@
-[
-  {
-    "id": "uecn-v10",
-    "file": "templates/uecn-v10.json",
-    "name": "ЭП (v.10)"
-  }
-]
+[{"id":"uecn-v10","file":"templates/uecn-v10.json","name":"УЭЦН v10"}]

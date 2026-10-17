@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Извлечение № узлов</title>
+<title>Извлечение полей УЭЦН</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <link rel="stylesheet" href="css/style.css">
 </head>
@@ -12,26 +12,25 @@
 <div id="dragOverlay"><span>Отпустите файл .docx</span></div>
 
 <header class="top">
-  <div class="brand">УЭЦН  извлечение № узлов</div>
-  <div class="controls">
-    <label class="sel-label">Шаблон
-      <select id="templateSelect"></select>
-    </label>
+  <div class="brand">УЭЦН · извлечение полей</div>
+  <div id="toolbar" class="toolbar hidden">
+    <span id="fileName" class="file-name"></span>
     <label class="sel-label">Отображение
-      <select id="layoutSelect"></select>
+      <select id="modeSelect"></select>
     </label>
+    <button class="btn-reset" onclick="resetFile()">Другой файл</button>
   </div>
 </header>
 
 <div id="dropZone">
-  Закинь сюда паспорт
-  <div class="hint">можно бросить в любое место страницы</div>
+  <div class="drop-icon">📄</div>
+  <div class="drop-title">Перетащите паспорт .docx сюда</div>
+  <div class="hint">или нажмите, чтобы выбрать файл</div>
   <div id="status"></div>
 </div>
 <input type="file" id="fileInput" accept=".docx" style="display:none">
 
 <div id="output"></div>
-
 
 <script src="js/parser.js"></script>
 <script src="js/app.js"></script>

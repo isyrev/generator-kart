@@ -1,26 +1,27 @@
 /**
- * UECN Extractor UI — GitHub Pages ready
+ * UECN Extractor UI — 3 modes: ЭПОС / ММ / ЦДС
  */
 (function () {
   'use strict';
 
-  var TEMPLATES_INDEX = 'templates/index.json';
+  var TEMPLATE_URL = 'templates/uecn-v10.json';
   var currentTemplate = null;
-  var currentLayoutKey = 'full';
+  var currentMode = 'epos';
   var lastValues = null;
-  var templatesList = [];
+  var fileLoaded = false;
 
   var dropZone = document.getElementById('dropZone');
   var fileInput = document.getElementById('fileInput');
   var statusEl = document.getElementById('status');
   var output = document.getElementById('output');
   var overlay = document.getElementById('dragOverlay');
-  var templateSelect = document.getElementById('templateSelect');
-  var layoutSelect = document.getElementById('layoutSelect');
+  var modeSelect = document.getElementById('modeSelect');
+  var toolbar = document.getElementById('toolbar');
+  var fileNameEl = document.getElementById('fileName');
   var dragCounter = 0;
 
   function setStatus(msg, cls) {
-    statusEl.textContent = msg;
+    statusEl.textContent = msg || '';
     statusEl.className = cls || '';
   }
 
@@ -44,186 +45,165 @@
     });
   };
 
-  window.copyAll = function (btn) {
-    var layout = getLayout();
-    if (!layout || !lastValues) return;
-    var ids = layout.copyIds || [];
+  window.copyBulk = function (btn) {
+    var mode = getMode();
+    if (!mode || !lastValues) return;
+    var ids = mode.copyIds || [];
     var lines = [];
     for (var i = 0; i < ids.length; i++) {
       var v = UecnParser.clean(lastValues[ids[i]]);
-      // только реальные номера, без «-» и пустых
       if (isEmpty(v)) continue;
       lines.push(v);
     }
-    var text = lines.join('\n');
-    navigator.clipboard.writeText(text).then(function () {
-      var n = lines.length;
-      btn.textContent = '✓ ' + n + ' шт.';
+    navigator.clipboard.writeText(lines.join('\n')).then(function () {
+      btn.textContent = '✓ ' + lines.length + ' шт.';
       btn.classList.add('copied');
       setTimeout(function () {
-        btn.textContent = 'Копировать всё (1–30)';
+        btn.textContent = mode.copyMode === 'mufty' ? 'Копировать муфты' : 'Копировать';
         btn.classList.remove('copied');
       }, 1500);
     });
   };
 
-  function cellCopy(v) {
+  function cell(v, asNode) {
     v = UecnParser.clean(v);
-    if (isEmpty(v)) return '<span class="val empty">—</span>';
-    var id = 'c' + Math.random().toString(36).slice(2, 9);
-    return '<span class="cell"><span class="val" id="' + id + '">' + esc(v) + '</span>' +
-      '<button class="btn" onclick="copyVal(document.getElementById(\'' + id + '\').textContent,this)">Копировать</button></span>';
+    if (isEmpty(v)) return '<span class="empty">—</span>';
+    if (asNode) return '<span class="num">' + esc(v) + '</span>';
+    return '<span class="txt">' + esc(v) + '</span>';
   }
 
-  function cellStatic(v) {
-    v = UecnParser.clean(v);
-    if (isEmpty(v)) return '<span class="static empty">—</span>';
-    return '<span class="static">' + esc(v) + '</span>';
+  function getMode() {
+    if (!currentTemplate || !currentTemplate.modes) return null;
+    return currentTemplate.modes[currentMode] || currentTemplate.modes[currentTemplate.defaultMode];
   }
 
-  function getLayout() {
-    if (!currentTemplate) return null;
-    var layouts = currentTemplate.layouts || {};
-    return layouts[currentLayoutKey] || layouts[currentTemplate.defaultLayout] || layouts.full || null;
-  }
-
-  function render(values, template) {
+  function render(values) {
     lastValues = values;
-    var layout = getLayout();
-    if (!layout) {
-      output.innerHTML = '<p class="err">Нет layout в шаблоне</p>';
-      return;
-    }
-    var fields = template.fields || {};
-    var copyMode = layout.copyMode || 'perField';
-    var rows = layout.rows || [];
+    var mode = getMode();
+    if (!mode) return;
+
+    var headers = mode.headers || [];
+    var rows = mode.rows || [];
+    var colCount = headers.length;
     var html = '';
 
+    // header
+    html += '<div class="tbl-head" style="grid-template-columns: repeat(' + colCount + ', minmax(0,1fr))">';
+    for (var h = 0; h < headers.length; h++) {
+      html += '<div class="th">' + esc(headers[h]) + '</div>';
+    }
+    html += '</div>';
+
+    html += '<div class="tbl-body">';
     for (var i = 0; i < rows.length; i++) {
       var row = rows[i];
-      if (row.gap) {
-        html += '<div class="block-gap"></div>';
-        continue;
-      }
-      // labelIf: строка только если поле непустое (ППО)
-      var labelIfActive = false;
-      if (row.labelIf) {
-        var check = UecnParser.clean(values[row.labelIf]);
-        if (isEmpty(check)) continue;
-        labelIfActive = true;
-      }
-
-      var cols = row.cols || 1;
       var ids = row.ids || [];
-      var cls = cols === 3 ? 'row3' : cols === 2 ? 'row2' : 'row1';
 
-      // ППО: [номер] | «ППО» во 2-й колонке (и полный, и компактный)
-      if (labelIfActive && row.label && (row.labelCol === 2 || copyMode === 'all')) {
-        html += '<div class="row2">';
-        var id0 = String(ids[0] || row.labelIf);
-        var val0 = values[id0] != null ? values[id0] : '-';
-        var f0 = fields[id0] || {};
-        if (copyMode === 'perField' && f0.copyable) html += cellCopy(val0);
-        else html += cellStatic(val0);
-        html += '<span class="row-label col2">' + esc(row.label) + '</span>';
+      // PPO: hide if empty
+      if (row.ppo) {
+        var ppoVal = UecnParser.clean(values[ids[0]]);
+        if (isEmpty(ppoVal)) continue;
+      }
+
+      // Комплект №
+      if (row.label) {
+        html += '<div class="tbl-row label-row" style="grid-template-columns: auto 1fr">';
+        html += '<span class="row-label">' + esc(row.label) + '</span>';
+        html += cell(values[ids[0]], true);
         html += '</div>';
         continue;
       }
 
-      // Строка с «дырками» (null): например [—, 47, 48] между 30 и 9
-      if (ids.some(function (x) { return x == null; })) {
-        html += '<div class="' + cls + ' ed-mid">';
-        for (var j = 0; j < ids.length; j++) {
-          if (ids[j] == null) {
-            html += '<span class="spacer"></span>';
-            continue;
+      // mid row (47/48 between 30 and 9)
+      if (row.mid) {
+        html += '<div class="tbl-row mid-row" style="grid-template-columns: repeat(' + colCount + ', minmax(0,1fr))">';
+        for (var j = 0; j < colCount; j++) {
+          if (j < ids.length && ids[j] != null) {
+            html += '<div class="td">' + cell(values[ids[j]], false) + '</div>';
+          } else {
+            html += '<div class="td"></div>';
           }
-          var id = String(ids[j]);
-          var f = fields[id] || {};
-          var val = values[id] != null ? values[id] : '-';
-          if (copyMode === 'perField' && f.copyable) html += cellCopy(val);
-          else html += cellStatic(val);
         }
         html += '</div>';
         continue;
       }
 
-      html += '<div class="' + cls + '">';
-
-      // «Комплект №» всегда слева
-      if (row.label && !labelIfActive) {
-        html += '<span class="row-label">' + esc(row.label) + '</span>';
+      // span: only first col (30 or 9 alone)
+      if (row.span) {
+        html += '<div class="tbl-row" style="grid-template-columns: repeat(' + colCount + ', minmax(0,1fr))">';
+        html += '<div class="td">' + cell(values[ids[0]], true) + '</div>';
+        for (var j = 1; j < colCount; j++) html += '<div class="td"></div>';
+        html += '</div>';
+        continue;
       }
 
-      for (var j = 0; j < ids.length; j++) {
-        var id = String(ids[j]);
-        var f = fields[id] || {};
-        var val = values[id] != null ? values[id] : '-';
-        if (copyMode === 'perField' && f.copyable) {
-          html += cellCopy(val);
+      // normal row — pad to colCount
+      html += '<div class="tbl-row" style="grid-template-columns: repeat(' + colCount + ', minmax(0,1fr))">';
+      for (var j = 0; j < colCount; j++) {
+        if (j < ids.length && ids[j] != null) {
+          var isNum = (j === 0);
+          html += '<div class="td">' + cell(values[ids[j]], isNum) + '</div>';
         } else {
-          html += cellStatic(val);
+          html += '<div class="td"></div>';
         }
       }
       html += '</div>';
     }
+    html += '</div>';
 
-    if (copyMode === 'all') {
+    // bulk copy button
+    if (mode.copyMode === 'nodes' || mode.copyMode === 'mufty') {
+      var btnLabel = mode.copyMode === 'mufty' ? 'Копировать муфты' : 'Копировать';
       html += '<div class="copy-all-wrap">' +
-        '<button class="btn btn-all" onclick="copyAll(this)">Копировать всё (1–30)</button>' +
-        '<span class="copy-all-hint">в порядке строк, через перевод строки</span></div>';
+        '<button class="btn btn-all" onclick="copyBulk(this)">' + btnLabel + '</button>' +
+        '<span class="copy-all-hint">' +
+        (mode.copyMode === 'mufty'
+          ? 'номера муфт [79]–[89], без пустых'
+          : 'номера узлов, без пустых, по порядку') +
+        '</span></div>';
     }
 
-    output.innerHTML = '<div class="block">' + html + '</div>';
+    output.innerHTML = html;
   }
 
-  function fillLayoutSelect() {
-    layoutSelect.innerHTML = '';
-    if (!currentTemplate || !currentTemplate.layouts) return;
-    var keys = Object.keys(currentTemplate.layouts);
-    for (var i = 0; i < keys.length; i++) {
-      var k = keys[i];
-      var opt = document.createElement('option');
-      opt.value = k;
-      opt.textContent = currentTemplate.layouts[k].name || k;
-      if (k === (currentTemplate.defaultLayout || 'full')) opt.selected = true;
-      layoutSelect.appendChild(opt);
-    }
-    currentLayoutKey = layoutSelect.value;
+  function showLoaded(name) {
+    fileLoaded = true;
+    dropZone.classList.add('hidden');
+    toolbar.classList.remove('hidden');
+    fileNameEl.textContent = name;
   }
 
-  async function loadTemplatesIndex() {
+  function resetFile() {
+    fileLoaded = false;
+    lastValues = null;
+    dropZone.classList.remove('hidden');
+    toolbar.classList.add('hidden');
+    output.innerHTML = '';
+    fileNameEl.textContent = '';
+    setStatus('');
+    fileInput.value = '';
+  }
+
+  window.resetFile = resetFile;
+
+  async function loadTemplate() {
     try {
-      var res = await fetch(TEMPLATES_INDEX + '?t=' + Date.now());
-      if (!res.ok) throw new Error('index ' + res.status);
-      templatesList = await res.json();
-    } catch (e) {
-      templatesList = [{ id: 'uecn-v10', file: 'templates/uecn-v10.json', name: 'УЭЦН v10' }];
-    }
-    templateSelect.innerHTML = '';
-    for (var i = 0; i < templatesList.length; i++) {
-      var t = templatesList[i];
-      var opt = document.createElement('option');
-      opt.value = t.file || ('templates/' + t.id + '.json');
-      opt.textContent = t.name || t.id;
-      templateSelect.appendChild(opt);
-    }
-    if (templatesList.length) await loadTemplate(templateSelect.value);
-  }
-
-  async function loadTemplate(path) {
-    setStatus('Загрузка шаблона…', '');
-    try {
-      var res = await fetch(path + '?t=' + Date.now());
-      if (!res.ok) throw new Error('Шаблон не найден: ' + path);
+      var res = await fetch(TEMPLATE_URL + '?t=' + Date.now());
+      if (!res.ok) throw new Error('Не удалось загрузить шаблон');
       currentTemplate = await res.json();
-      fillLayoutSelect();
-      setStatus('Шаблон: ' + (currentTemplate.name || currentTemplate.id), 'ok');
-      if (lastValues) render(lastValues, currentTemplate);
-      else output.innerHTML = '';
+      currentMode = currentTemplate.defaultMode || 'epos';
+      // fill mode select
+      modeSelect.innerHTML = '';
+      var modes = currentTemplate.modes || {};
+      Object.keys(modes).forEach(function (k) {
+        var opt = document.createElement('option');
+        opt.value = k;
+        opt.textContent = modes[k].name || k;
+        if (k === currentMode) opt.selected = true;
+        modeSelect.appendChild(opt);
+      });
     } catch (err) {
       setStatus('Ошибка шаблона: ' + err.message, 'err');
-      currentTemplate = null;
     }
   }
 
@@ -234,7 +214,7 @@
       return;
     }
     if (!currentTemplate) {
-      setStatus('Сначала выберите шаблон', 'err');
+      setStatus('Шаблон ещё не загружен', 'err');
       return;
     }
     setStatus('Читаю ' + file.name + '…', '');
@@ -242,21 +222,20 @@
       var buf = await file.arrayBuffer();
       var parsed = await UecnParser.parseDocx(buf);
       var values = UecnParser.extract(parsed, currentTemplate);
-      render(values, currentTemplate);
-      setStatus('Готово: ' + file.name + '  ·  ' + (currentTemplate.name || currentTemplate.id), 'ok');
+      showLoaded(file.name);
+      render(values);
+      setStatus('Готово', 'ok');
     } catch (err) {
       setStatus('Ошибка: ' + err.message, 'err');
       console.error(err);
     }
   }
 
-  templateSelect.addEventListener('change', function () {
-    loadTemplate(templateSelect.value);
+  modeSelect.addEventListener('change', function () {
+    currentMode = modeSelect.value;
+    if (lastValues) render(lastValues);
   });
-  layoutSelect.addEventListener('change', function () {
-    currentLayoutKey = layoutSelect.value;
-    if (lastValues && currentTemplate) render(lastValues, currentTemplate);
-  });
+
   dropZone.addEventListener('click', function () { fileInput.click(); });
   fileInput.addEventListener('change', function (e) { handleFile(e.target.files[0]); });
 
@@ -279,5 +258,5 @@
     if (f) handleFile(f);
   });
 
-  loadTemplatesIndex();
+  loadTemplate();
 })();
