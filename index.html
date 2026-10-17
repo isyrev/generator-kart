@@ -3,29 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Извлечение полей УЭЦН</title>
+<title>Извлечение № узлов с ЭП</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<div id="dragOverlay"><span>Отпустите файл .docx</span></div>
+<div id="dragOverlay"><span>Ну... Отпускай уже!</span></div>
 
 <header class="top">
-  <div class="brand">УЭЦН · извлечение полей</div>
+  <div class="brand">Извлечение № узлов с ЭП</div>
   <div id="toolbar" class="toolbar hidden">
     <span id="fileName" class="file-name"></span>
-    <label class="sel-label">Отображение
+    <label class="sel-label">Шаблон:
       <select id="modeSelect"></select>
     </label>
-    <button class="btn-reset" onclick="resetFile()">Другой файл</button>
+    <button class="btn-reset" onclick="resetFile()">Сброс</button>
   </div>
 </header>
 
 <div id="dropZone">
-  <div class="drop-icon">📄</div>
-  <div class="drop-title">Перетащите паспорт .docx сюда</div>
-  <div class="hint">или нажмите, чтобы выбрать файл</div>
+  <div class="drop-icon">📥</div>
+  <div class="drop-title">Паспорт ЭП сюда</div>
+  <div class="hint">принимаются ЭП только v.10</div>
   <div id="status"></div>
 </div>
 <input type="file" id="fileInput" accept=".docx" style="display:none">
