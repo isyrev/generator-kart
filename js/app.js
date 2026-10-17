@@ -59,7 +59,7 @@
       btn.textContent = '✓ ' + lines.length + ' шт.';
       btn.classList.add('copied');
       setTimeout(function () {
-        btn.textContent = 'Копировать';
+        btn.textContent = 'Копир.';
         btn.classList.remove('copied');
       }, 1500);
     });
@@ -85,7 +85,7 @@
     if (withBtn) {
       var id = 'c' + Math.random().toString(36).slice(2, 9);
       html = '<span class="cell-copy" id="' + id + '">' + html +
-        '<button class="btn-sm" onclick="copyVal(document.querySelector(\'#' + id + ' .' + cls + '\').textContent,this)">Копировать</button></span>';
+        '<button class="btn-sm" onclick="copyVal(document.querySelector(\'#' + id + ' .' + cls + '\').textContent,this)">Копир.</button></span>';
     }
     return html;
   }
@@ -170,7 +170,7 @@
 
     if (copyMode === 'nodes' || copyMode === 'mufty' || copyMode === 'nodesAndMufty') {
       html += '<div class="copy-all-wrap">' +
-        '<button class="btn btn-all" onclick="copyBulk(this)">Копировать</button>' +
+        '<button class="btn btn-all" onclick="copyBulk(this)">Копир.</button>' +
         '<span class="copy-all-hint">' +
         (copyMode === 'mufty'
           ? 'номера муфт, без пустых'
